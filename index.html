@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Data Processor TAP - Portabilidade</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+        textarea {
+            width: 100%;
+            height: 150px;
+        }
+        pre {
+            background: #f4f4f4;
+            padding: 10px;
+            border: 1px solid #ddd;
+        }
+        h2 {
+            margin-top: 20px;
+        }
+        .copy-btn {
+            margin-left: 10px;
+        }
+        footer {
+            margin-top: 20px;
+            padding: 10px;
+            background: #f4f4f4;
+            text-align: center;
+            border-top: 1px solid #ddd;
+        }
+        .list-container {
+            margin-bottom: 20px;
+        }
+    </style>
+    <script>
+        function processData() {
+            const data = document.getElementById('dataInput').value.trim();
+            const lines = data.split('\n');
+            let aprovar = [];
+            let reprovar_55 = [];
+            let reprovar_57 = [];
+            let reprovar_53 = [];
+
+            lines.forEach(line => {
+                const parts = line.split('\t');
+                if (parts.length >= 7) {
+                    const sistema = parts[0];
+                    const tn = parts[1];
+                    const bp = parts[2].replace(/['",]/g, ''); // Remove ' e , do BP
+                    const tnl = parts[3];
+                    const cpf = parts[4];
+                    const nome = parts[5];
+                    const statusPart = parts.slice(6).join(' ').trim();
+                    let motivo = "";
+
+                    // Processar diferentes motivos de rejeição
+                    if (statusPart.includes("CPF/CNPJ DIFERENTE")) {
+                        const num = statusPart.split('-').pop().trim();
+                        if (num.length === 11) {
+                            motivo = "CPF Diferente";
+                            reprovar_55.push(`${sistema}\t${tn}\t${bp}\t${tnl}\t${cpf}\t${nome}\t${statusPart}\t${motivo}`);
+                        } else if (num.length === 14) {
+                            motivo = "CNPJ Diferente";
+                            reprovar_57.push(`${sistema}\t${tn}\t${bp}\t${tnl}\t${cpf}\t${nome}\t${statusPart}\t${motivo}`);
+                        }
+                    } else if (statusPart.includes("REPROVADO CPF/CNPJ DIF")) {
+                        const num = statusPart.split('-').pop().trim();
+                        if (num.length === 11) {
+                            motivo = "CPF Diferente";
+                            reprovar_55.push(`${sistema}\t${tn}\t${bp}\t${tnl}\t${cpf}\t${nome}\t${statusPart}\t${motivo}`);
+                        } else if (num.length === 14) {
+                            motivo = "CNPJ Diferente";
+                            reprovar_57.push(`${sistema}\t${tn}\t${bp}\t${tnl}\t${cpf}\t${nome}\t${statusPart}\t${motivo}`);
+                        }
+                    } else if (statusPart.includes("REJEITADO 55")) {
+                        motivo = "CPF Diferente";
+                        reprovar_55.push(`${sistema}\t${tn}\t${bp}\t${tnl}\t${cpf}\t${nome}\t${statusPart}\t${motivo}`);
+                    } else if (statusPart.includes("REJEITADO 57")) {
+                        motivo = "CNPJ Diferente";
+                        reprovar_57.push(`${sistema}\t${tn}\t${bp}\t${tnl}\t${cpf}\t${nome}\t${statusPart}\t${motivo}`);
+                    } else if (statusPart.includes("TERMINAL VAGO") || statusPart.includes("REPROVADO TERMINAL NAO CADASTRADO")) {
+                        motivo = "Terminal Vago";
+                        reprovar_53.push(`${sistema}\t${tn}\t${bp}\t${tnl}\t${cpf}\t${nome}\t${statusPart}\t${motivo}`);
+                    } else if (statusPart.includes("AUTORIZADO") || statusPart.includes("APROVADO") || statusPart.includes("EOT Alfa - Aprovar BP Manualmente")) {
+                        motivo = "Aprovado";
+                        aprovar.push(`${sistema}\t${tn}\t${bp}\t${tnl}\t${cpf}\t${nome}\t${statusPart}\t${motivo}`);
+                    }
+                }
+            });
+
+            document.getElementById('output').innerHTML = `
+                <h2>Aprovar:</h2>
+                ${createList(aprovar, 'aprovar')}
+                <h2>Reprovar - CPF Diferente:</h2>
+                ${createList(reprovar_55, 'reprovar_55')}
+                <h2>Reprovar - CNPJ Diferente:</h2>
+                ${createList(reprovar_57, 'reprovar_57')}
+                <h2>Reprovar - Terminal Vago:</h2>
+                ${createList(reprovar_53, 'reprovar_53')}
+            `;
+        }
+
+        function createList(data, id) {
+            const chunkedData = chunkArray(data, 200);
+            return chunkedData.map((chunk, index) => `
+                <div class="list-container" id="${id}_${index}">
+                    <button class="copy-btn" onclick="copyColumn('${id}_${index}', 1)">Copiar TN</button>
+                    <button class="copy-btn" onclick="copyColumn('${id}_${index}', 2)">Copiar BP</button>
+                    <button class="copy-btn" onclick="copyColumn('${id}_${index}', 3)">Copiar CNL</button>
+                    <button onclick="toggleVisibility('${id}_${index}_list')">Recolher/Expandir</button>
+                    <pre id="${id}_${index}_list">${chunk.join('\n')}</pre>
+                </div>
+            `).join('');
+        }
+
+        function chunkArray(array, chunkSize) {
+            const chunks = [];
+            for (let i = 0; i < array.length; i += chunkSize) {
+                chunks.push(array.slice(i, i + chunkSize));
+            }
+            return chunks;
+        }
+
+        function toggleVisibility(id) {
+            const element = document.getElementById(id);
+            element.style.display = element.style.display === 'none' ? 'block' : 'none';
+        }
+
+        function copyColumn(group, index) {
+            const pre = document.getElementById(`${group}_list`);
+            let textToCopy = '';
+            const lines = pre.textContent.trim().split('\n');
+            lines.forEach(line => {
+                const parts = line.split('\t');
+                if (parts.length > index) {
+                    textToCopy += parts[index] + '\n';
+                }
+            });
+
+            navigator.clipboard.writeText(textToCopy).then(() => {
+                alert('Coluna copiada!');
+            }, () => {
+                alert('Falha ao copiar a coluna.');
+            });
+        }
+    </script>
+</head>
+<body>
+    <h1>Data Processor TAP - Portabilidade</h1>
+    <textarea id="dataInput"></textarea><br>
+    <button onclick="processData()">Processar</button>
+    <div id="output"></div>
+    <footer>
+        Desenvolvido por Matheus Barbosa - Portabilidade Oi
+    </footer>
+</body>
+</html>
