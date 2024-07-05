@@ -7,25 +7,21 @@
     <style>
         body {
             font-family: Arial, sans-serif;
-            line-height: 1.6;
         }
         textarea {
             width: 100%;
             height: 150px;
-            margin-bottom: 20px;
         }
         pre {
             background: #f4f4f4;
             padding: 10px;
             border: 1px solid #ddd;
-            white-space: pre-wrap; /* Pre-wrap ensures that long lines wrap and fit within the container */
         }
         h2 {
             margin-top: 20px;
         }
-        .copy-btn, .toggle-btn {
-            margin-right: 10px;
-            margin-bottom: 10px;
+        .copy-btn {
+            margin-left: 10px;
         }
         footer {
             margin-top: 20px;
@@ -37,9 +33,6 @@
         .list-container {
             margin-bottom: 20px;
         }
-        .hidden {
-            display: none;
-        }
     </style>
     <script>
         function processData() {
@@ -49,11 +42,6 @@
             let reprovar_55 = [];
             let reprovar_57 = [];
             let reprovar_53 = [];
-
-            let aprovarCount = 0;
-            let reprovar_55Count = 0;
-            let reprovar_57Count = 0;
-            let reprovar_53Count = 0;
 
             lines.forEach(line => {
                 const parts = line.split('\t');
@@ -72,32 +60,32 @@
                         const num = statusPart.split('-').pop().trim();
                         if (num.length === 11) {
                             motivo = "CPF Diferente";
-                            reprovar_55.push(`${++reprovar_55Count}\t${sistema}\t${tn}\t${bp}\t${tnl}\t${cpf}\t${nome}\t${statusPart}\t${motivo}`);
+                            reprovar_55.push(`${sistema}\t${tn}\t${bp}\t${tnl}\t${cpf}\t${nome}\t${statusPart}\t${motivo}`);
                         } else if (num.length === 14) {
                             motivo = "CNPJ Diferente";
-                            reprovar_57.push(`${++reprovar_57Count}\t${sistema}\t${tn}\t${bp}\t${tnl}\t${cpf}\t${nome}\t${statusPart}\t${motivo}`);
+                            reprovar_57.push(`${sistema}\t${tn}\t${bp}\t${tnl}\t${cpf}\t${nome}\t${statusPart}\t${motivo}`);
                         }
                     } else if (statusPart.includes("REPROVADO CPF/CNPJ DIF")) {
                         const num = statusPart.split('-').pop().trim();
                         if (num.length === 11) {
                             motivo = "CPF Diferente";
-                            reprovar_55.push(`${++reprovar_55Count}\t${sistema}\t${tn}\t${bp}\t${tnl}\t${cpf}\t${nome}\t${statusPart}\t${motivo}`);
+                            reprovar_55.push(`${sistema}\t${tn}\t${bp}\t${tnl}\t${cpf}\t${nome}\t${statusPart}\t${motivo}`);
                         } else if (num.length === 14) {
                             motivo = "CNPJ Diferente";
-                            reprovar_57.push(`${++reprovar_57Count}\t${sistema}\t${tn}\t${bp}\t${tnl}\t${cpf}\t${nome}\t${statusPart}\t${motivo}`);
+                            reprovar_57.push(`${sistema}\t${tn}\t${bp}\t${tnl}\t${cpf}\t${nome}\t${statusPart}\t${motivo}`);
                         }
                     } else if (statusPart.includes("REJEITADO 55")) {
                         motivo = "CPF Diferente";
-                        reprovar_55.push(`${++reprovar_55Count}\t${sistema}\t${tn}\t${bp}\t${tnl}\t${cpf}\t${nome}\t${statusPart}\t${motivo}`);
+                        reprovar_55.push(`${sistema}\t${tn}\t${bp}\t${tnl}\t${cpf}\t${nome}\t${statusPart}\t${motivo}`);
                     } else if (statusPart.includes("REJEITADO 57")) {
                         motivo = "CNPJ Diferente";
-                        reprovar_57.push(`${++reprovar_57Count}\t${sistema}\t${tn}\t${bp}\t${tnl}\t${cpf}\t${nome}\t${statusPart}\t${motivo}`);
+                        reprovar_57.push(`${sistema}\t${tn}\t${bp}\t${tnl}\t${cpf}\t${nome}\t${statusPart}\t${motivo}`);
                     } else if (statusPart.includes("TERMINAL VAGO") || statusPart.includes("REPROVADO TERMINAL NAO CADASTRADO")) {
                         motivo = "Terminal Vago";
-                        reprovar_53.push(`${++reprovar_53Count}\t${sistema}\t${tn}\t${bp}\t${tnl}\t${cpf}\t${nome}\t${statusPart}\t${motivo}`);
+                        reprovar_53.push(`${sistema}\t${tn}\t${bp}\t${tnl}\t${cpf}\t${nome}\t${statusPart}\t${motivo}`);
                     } else if (statusPart.includes("AUTORIZADO") || statusPart.includes("APROVADO") || statusPart.includes("EOT Alfa - Aprovar BP Manualmente")) {
                         motivo = "Aprovado";
-                        aprovar.push(`${++aprovarCount}\t${sistema}\t${tn}\t${bp}\t${tnl}\t${cpf}\t${nome}\t${statusPart}\t${motivo}`);
+                        aprovar.push(`${sistema}\t${tn}\t${bp}\t${tnl}\t${cpf}\t${nome}\t${statusPart}\t${motivo}`);
                     }
                 }
             });
@@ -118,12 +106,10 @@
             const chunkedData = chunkArray(data, 200);
             return chunkedData.map((chunk, index) => `
                 <div class="list-container" id="${id}_${index}">
-                    <div id="${id}_${index}_buttons" class="button-group">
-                        <button class="copy-btn" onclick="copyColumn('${id}_${index}', 1)">Copiar TN</button>
-                        <button class="copy-btn" onclick="copyColumn('${id}_${index}', 2)">Copiar BP</button>
-                        <button class="copy-btn" onclick="copyColumn('${id}_${index}', 3)">Copiar CNL</button>
-                    </div>
-                    <button class="toggle-btn" onclick="toggleVisibility('${id}_${index}_list', '${id}_${index}_buttons')">Recolher/Expandir</button>
+                    <button class="copy-btn" onclick="copyColumn('${id}_${index}', 1)">Copiar TN</button>
+                    <button class="copy-btn" onclick="copyColumn('${id}_${index}', 2)">Copiar BP</button>
+                    <button class="copy-btn" onclick="copyColumn('${id}_${index}', 3)">Copiar CNL</button>
+                    <button onclick="toggleVisibility('${id}_${index}_list')">Recolher/Expandir</button>
                     <pre id="${id}_${index}_list">${chunk.join('\n')}</pre>
                 </div>
             `).join('');
@@ -137,16 +123,9 @@
             return chunks;
         }
 
-        function toggleVisibility(listId, buttonsId) {
-            const listElement = document.getElementById(listId);
-            const buttonsElement = document.getElementById(buttonsId);
-            if (listElement.style.display === 'none') {
-                listElement.style.display = 'block';
-                buttonsElement.style.display = 'flex';
-            } else {
-                listElement.style.display = 'none';
-                buttonsElement.style.display = 'none';
-            }
+        function toggleVisibility(id) {
+            const element = document.getElementById(id);
+            element.style.display = element.style.display === 'none' ? 'block' : 'none';
         }
 
         function copyColumn(group, index) {
