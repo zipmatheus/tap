@@ -1,118 +1,352 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Data Processor TAP - Portabilidade</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
         body {
-            font-family: Arial, sans-serif;
+            background-color: #f8f9fa;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
-        textarea {
+        .container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+        }
+        .header {
+            background: linear-gradient(135deg, #007bff, #0056b3);
+            color: white;
+            padding: 2rem 0;
+            margin-bottom: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        .textarea-container {
+            position: relative;
+            margin-bottom: 1rem;
+        }
+        .textarea-container textarea {
             width: 100%;
-            height: 150px;
+            height: 200px;
+            padding: 1rem;
+            border: 2px solid #dee2e6;
+            border-radius: 8px;
+            resize: vertical;
+            font-family: monospace;
         }
-        pre {
-            background: #f4f4f4;
-            padding: 10px;
-            border: 1px solid #ddd;
+        .process-btn {
+            width: 100%;
+            padding: 0.75rem;
+            font-size: 1.1rem;
+            margin-bottom: 2rem;
         }
-        h2 {
-            margin-top: 20px;
+        .result-section {
+            background: white;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+        .result-section h2 {
+            color: #007bff;
+            margin-bottom: 1rem;
+            font-size: 1.5rem;
         }
         .copy-btn {
-            margin-left: 10px;
+            margin-right: 0.5rem;
+            margin-bottom: 0.5rem;
         }
-        footer {
-            margin-top: 20px;
-            padding: 10px;
-            background: #f4f4f4;
+        .data-list {
+            background: #f8f9fa;
+            padding: 1rem;
+            border-radius: 6px;
+            font-family: monospace;
+            white-space: pre-wrap;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        .footer {
             text-align: center;
-            border-top: 1px solid #ddd;
+            padding: 1rem;
+            color: #6c757d;
+            font-size: 0.9rem;
+        }
+        .empty-section {
+            display: none;
+        }
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+        .toggle-btn {
+            background: none;
+            border: none;
+            color: #6c757d;
+            cursor: pointer;
+        }
+        .toggle-btn:hover {
+            color: #007bff;
         }
         .list-container {
-            margin-bottom: 20px;
+            background: #fff;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+        }
+        .list-container h4 {
+            color: #6c757d;
+            margin-bottom: 1rem;
+            font-size: 1.1rem;
+        }
+        .data-list {
+            max-height: 300px;
+            overflow-y: auto;
+            background: #f8f9fa;
+            padding: 1rem;
+            border-radius: 6px;
+            font-family: monospace;
+            white-space: pre-wrap;
+            margin-bottom: 0;
+        }
+        .group-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid #dee2e6;
+        }
+        .group-header h4 {
+            color: #6c757d;
+            font-size: 1.1rem;
+            margin: 0;
+        }
+        .toggle-btn {
+            background: none;
+            border: none;
+            color: #6c757d;
+            cursor: pointer;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+        }
+        .toggle-btn:hover {
+            color: #007bff;
+            background-color: #f8f9fa;
+        }
+        .data-list {
+            max-height: 300px;
+            overflow-y: auto;
+            background: #f8f9fa;
+            padding: 1rem;
+            border-radius: 6px;
+            font-family: monospace;
+            white-space: pre-wrap;
+            margin-bottom: 0;
+            margin-top: 0.5rem;
+        }
+        .copy-btn {
+            margin-right: 0.5rem;
+        }
+        .section-header {
+            margin-bottom: 1.5rem;
         }
     </style>
+</head>
+<body>
+    <div class="header text-center">
+        <div class="container">
+            <h1><i class="fas fa-exchange-alt me-2"></i>Data Processor TAP - Portabilidade</h1>
+            <p class="lead">Processe e organize seus dados de portabilidade de forma eficiente</p>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="textarea-container">
+            <textarea id="dataInput" class="form-control" placeholder="Cole aqui os dados da portabilidade..."></textarea>
+        </div>
+        <button class="btn btn-primary process-btn" onclick="processData()">
+            <i class="fas fa-cogs me-2"></i>Processar Dados
+        </button>
+
+        <div id="output"></div>
+    </div>
+
+    <footer class="footer">
+        <div class="container">
+            <p>Desenvolvido por Matheus Barbosa - Portabilidade Oi</p>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
         function processData() {
-            const data = document.getElementById('dataInput').value.trim();
-            const lines = data.split('\n');
-            let aprovar = [];
-            let reprovar_55 = [];
-            let reprovar_57 = [];
-            let reprovar_53 = [];
+            console.log('Iniciando processamento...');
+            try {
+                const data = document.getElementById('dataInput').value.trim();
+                if (!data) {
+                    alert('Por favor, cole os dados antes de processar.');
+                    return;
+                }
 
-            lines.forEach(line => {
-                const parts = line.split('\t');
-                if (parts.length >= 7) {
+                const lines = data.split('\n');
+                console.log(`Processando ${lines.length} linhas`);
+
+                let aprovar = [];
+                let reprovar_55 = [];
+                let reprovar_57 = [];
+                let reprovar_53 = [];
+
+                let aprovarCount = 0;
+                let reprovar_55Count = 0;
+                let reprovar_57Count = 0;
+                let reprovar_53Count = 0;
+
+                lines.forEach((line, index) => {
+                    if (!line.trim()) return;
+
+                    const parts = line.split('\t');
+                    console.log('Partes encontradas:', parts);
+                    
+                    if (parts.length < 3) return; // Linha inválida
+
+                    // Extrair os campos básicos que são comuns a todos os formatos
                     const sistema = parts[0];
                     const tn = parts[1];
-                    const bp = parts[2].replace(/['",]/g, ''); // Remove ' e , do BP
-                    const tnl = parts[3];
-                    const cpf = parts[4];
-                    const nome = parts[5];
-                    const statusPart = parts.slice(6).join(' ').trim();
-                    let motivo = "";
+                    const bp = parts[2].replace(/['",]/g, '').padStart(9, '0');
+                    
+                    // Tentar encontrar o TNL e status em diferentes posições
+                    let tnl = '';
+                    let status = '';
+                    let documento = '';
 
-                    // Processar diferentes motivos de rejeição
-                    if (statusPart.includes("CPF/CNPJ DIFERENTE")) {
-                        const num = statusPart.split('-').pop().trim();
-                        if (num.length === 11) {
-                            motivo = "CPF Diferente";
-                            reprovar_55.push(`${sistema}\t${tn}\t${bp}\t${tnl}\t${cpf}\t${nome}\t${statusPart}\t${motivo}`);
-                        } else if (num.length === 14) {
-                            motivo = "CNPJ Diferente";
-                            reprovar_57.push(`${sistema}\t${tn}\t${bp}\t${tnl}\t${cpf}\t${nome}\t${statusPart}\t${motivo}`);
-                        }
-                    } else if (statusPart.includes("REPROVADO CPF/CNPJ DIF")) {
-                        const num = statusPart.split('-').pop().trim();
-                        if (num.length === 11) {
-                            motivo = "CPF Diferente";
-                            reprovar_55.push(`${sistema}\t${tn}\t${bp}\t${tnl}\t${cpf}\t${nome}\t${statusPart}\t${motivo}`);
-                        } else if (num.length === 14) {
-                            motivo = "CNPJ Diferente";
-                            reprovar_57.push(`${sistema}\t${tn}\t${bp}\t${tnl}\t${cpf}\t${nome}\t${statusPart}\t${motivo}`);
-                        }
-                    } else if (statusPart.includes("REJEITADO 55")) {
-                        motivo = "CPF Diferente";
-                        reprovar_55.push(`${sistema}\t${tn}\t${bp}\t${tnl}\t${cpf}\t${nome}\t${statusPart}\t${motivo}`);
-                    } else if (statusPart.includes("REJEITADO 57")) {
-                        motivo = "CNPJ Diferente";
-                        reprovar_57.push(`${sistema}\t${tn}\t${bp}\t${tnl}\t${cpf}\t${nome}\t${statusPart}\t${motivo}`);
-                    } else if (statusPart.includes("TERMINAL VAGO") || statusPart.includes("REPROVADO TERMINAL NAO CADASTRADO")) {
-                        motivo = "Terminal Vago";
-                        reprovar_53.push(`${sistema}\t${tn}\t${bp}\t${tnl}\t${cpf}\t${nome}\t${statusPart}\t${motivo}`);
-                    } else if (statusPart.includes("AUTORIZADO") || statusPart.includes("APROVADO") || statusPart.includes("EOT Alfa - Aprovar BP Manualmente")) {
-                        motivo = "Aprovado";
-                        aprovar.push(`${sistema}\t${tn}\t${bp}\t${tnl}\t${cpf}\t${nome}\t${statusPart}\t${motivo}`);
+                    // Formato padrão (9 campos)
+                    if (parts.length >= 9) {
+                        tnl = parts[3];
+                        status = parts[8];
+                    } 
+                    // Formato SAC com 6-7 campos
+                    else if (parts.length >= 6) {
+                        tnl = parts[3];
+                        documento = parts[4];
+                        status = parts[parts.length - 1];
                     }
-                }
-            });
 
-            document.getElementById('output').innerHTML = `
-                <h2>Aprovar:</h2>
-                ${createList(aprovar, 'aprovar')}
-                <h2>Reprovar - CPF Diferente:</h2>
-                ${createList(reprovar_55, 'reprovar_55')}
-                <h2>Reprovar - CNPJ Diferente:</h2>
-                ${createList(reprovar_57, 'reprovar_57')}
-                <h2>Reprovar - Terminal Vago:</h2>
-                ${createList(reprovar_53, 'reprovar_53')}
-            `;
+                    // Normalizar o status para classificação
+                    const statusLower = status.toLowerCase().trim();
+                    
+                    // Classificar baseado em todas as variações possíveis
+                    if (
+                        status === '59' || 
+                        statusLower.includes('autorizado') ||
+                        statusLower.includes('aprovado') ||
+                        statusLower.includes('eot alfa')
+                    ) {
+                        aprovar.push(`${++aprovarCount}\t${tn}\t${bp}\t${tnl}`);
+                    } 
+                    else if (
+                        status === '55' || 
+                        statusLower.includes('cpf dif') ||
+                        (statusLower.includes('reprovado') && statusLower.includes('cpf'))
+                    ) {
+                        reprovar_55.push(`${++reprovar_55Count}\t${tn}\t${bp}\t${tnl}`);
+                    }
+                    else if (
+                        status === '57' || 
+                        statusLower.includes('cnpj dif') ||
+                        (statusLower.includes('reprovado') && statusLower.includes('cnpj'))
+                    ) {
+                        reprovar_57.push(`${++reprovar_57Count}\t${tn}\t${bp}\t${tnl}`);
+                    }
+                    else if (
+                        status === '53' || 
+                        statusLower.includes('terminal vago') ||
+                        statusLower.includes('rejeitar,terminal')
+                    ) {
+                        reprovar_53.push(`${++reprovar_53Count}\t${tn}\t${bp}\t${tnl}`);
+                    }
+                    // Se tiver documento, usar como fallback para classificação
+                    else if (documento) {
+                        if (documento.length === 11) {
+                            reprovar_55.push(`${++reprovar_55Count}\t${tn}\t${bp}\t${tnl}`);
+                        } else if (documento.length === 14) {
+                            reprovar_57.push(`${++reprovar_57Count}\t${tn}\t${bp}\t${tnl}`);
+                        }
+                    }
+                });
+
+                console.log('Resultados:', {
+                    aprovar: aprovar.length,
+                    reprovar_55: reprovar_55.length,
+                    reprovar_57: reprovar_57.length,
+                    reprovar_53: reprovar_53.length
+                });
+
+                const output = document.getElementById('output');
+                const html = `
+                    ${createSection('Aprovar', aprovar, 'aprovar')}
+                    ${createSection('Reprovar - CPF Diferente', reprovar_55, 'reprovar_55')}
+                    ${createSection('Reprovar - CNPJ Diferente', reprovar_57, 'reprovar_57')}
+                    ${createSection('Reprovar - Terminal Vago', reprovar_53, 'reprovar_53')}
+                `;
+                
+                output.innerHTML = html;
+                console.log('Processamento concluído com sucesso!');
+            } catch (error) {
+                console.error('Erro durante o processamento:', error);
+                alert('Ocorreu um erro durante o processamento. Por favor, verifique o console para mais detalhes.');
+            }
         }
 
-        function createList(data, id) {
+        function createSection(title, data, id) {
+            console.log(`Criando seção ${title} com ${data.length} itens`);
+            
+            if (data.length === 0) {
+                return '';  // Não retorna nada se não houver dados
+            }
+
             const chunkedData = chunkArray(data, 200);
-            return chunkedData.map((chunk, index) => `
-                <div class="list-container" id="${id}_${index}">
-                    <button class="copy-btn" onclick="copyColumn('${id}_${index}', 1)">Copiar TN</button>
-                    <button class="copy-btn" onclick="copyColumn('${id}_${index}', 2)">Copiar BP</button>
-                    <button class="copy-btn" onclick="copyColumn('${id}_${index}', 3)">Copiar CNL</button>
-                    <button onclick="toggleVisibility('${id}_${index}_list')">Recolher/Expandir</button>
-                    <pre id="${id}_${index}_list">${chunk.join('\n')}</pre>
+            const sectionHtml = `
+                <div class="result-section" id="${id}_section">
+                    <div class="section-header">
+                        <h2>${title} (${data.length} itens)</h2>
+                        <button class="toggle-btn" onclick="toggleSection('${id}_content')">
+                            <i class="fas fa-chevron-down"></i>
+                        </button>
+                    </div>
+                    <div id="${id}_content">
+                        ${chunkedData.map((chunk, chunkIndex) => `
+                            <div class="list-container mb-4" id="${id}_${chunkIndex}">
+                                <div class="group-header">
+                                    <h4 class="mb-0">Grupo ${chunkIndex + 1} (${chunk.length} itens)</h4>
+                                    <button class="toggle-btn" onclick="toggleGroup('${id}_${chunkIndex}_content')">
+                                        <i class="fas fa-chevron-down"></i>
+                                    </button>
+                                </div>
+                                <div id="${id}_${chunkIndex}_content">
+                                    <div class="mb-2 mt-3">
+                                        <button class="btn btn-outline-primary copy-btn" onclick="copyColumn('${id}_${chunkIndex}', 1)">
+                                            <i class="fas fa-copy me-1"></i>CNL (5 dígitos)
+                                        </button>
+                                        <button class="btn btn-outline-primary copy-btn" onclick="copyColumn('${id}_${chunkIndex}', 3)">
+                                            <i class="fas fa-copy me-1"></i>TN (10 dígitos)
+                                        </button>
+                                        <button class="btn btn-outline-primary copy-btn" onclick="copyColumn('${id}_${chunkIndex}', 2)">
+                                            <i class="fas fa-copy me-1"></i>BP (9 dígitos)
+                                        </button>
+                                    </div>
+                                    <pre class="data-list">${chunk.join('\n')}</pre>
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
                 </div>
-            `).join('');
+            `;
+            return sectionHtml;
         }
 
         function chunkArray(array, chunkSize) {
@@ -123,13 +357,50 @@
             return chunks;
         }
 
-        function toggleVisibility(id) {
-            const element = document.getElementById(id);
-            element.style.display = element.style.display === 'none' ? 'block' : 'none';
+        function toggleSection(contentId) {
+            console.log(`Alternando visibilidade da seção: ${contentId}`);
+            const content = document.getElementById(contentId);
+            const icon = content.parentElement.querySelector('.toggle-btn i');
+            
+            if (!content || !icon) {
+                console.error('Elementos não encontrados para toggle');
+                return;
+            }
+            
+            if (content.style.display === 'none') {
+                content.style.display = 'block';
+                icon.classList.remove('fa-chevron-up');
+                icon.classList.add('fa-chevron-down');
+            } else {
+                content.style.display = 'none';
+                icon.classList.remove('fa-chevron-down');
+                icon.classList.add('fa-chevron-up');
+            }
+        }
+
+        function toggleGroup(contentId) {
+            const content = document.getElementById(contentId);
+            const icon = content.parentElement.querySelector('.toggle-btn i');
+            
+            if (content.style.display === 'none') {
+                content.style.display = 'block';
+                icon.classList.remove('fa-chevron-up');
+                icon.classList.add('fa-chevron-down');
+            } else {
+                content.style.display = 'none';
+                icon.classList.remove('fa-chevron-down');
+                icon.classList.add('fa-chevron-up');
+            }
         }
 
         function copyColumn(group, index) {
-            const pre = document.getElementById(`${group}_list`);
+            console.log(`Copiando coluna ${index} do grupo ${group}`);
+            const pre = document.querySelector(`#${group} .data-list`);
+            if (!pre) {
+                console.error(`Elemento não encontrado: #${group} .data-list`);
+                return;
+            }
+            
             let textToCopy = '';
             const lines = pre.textContent.trim().split('\n');
             lines.forEach(line => {
@@ -139,21 +410,32 @@
                 }
             });
 
-            navigator.clipboard.writeText(textToCopy).then(() => {
-                alert('Coluna copiada!');
-            }, () => {
-                alert('Falha ao copiar a coluna.');
+            navigator.clipboard.writeText(textToCopy.trim()).then(() => {
+                const btn = event.target.closest('button');
+                const originalText = btn.innerHTML;
+                btn.innerHTML = '<i class="fas fa-check me-1"></i>Copiado!';
+                
+                // Determina qual tipo de dado foi copiado
+                let mensagem = '';
+                if (index === 1) {
+                    mensagem = 'TN (10 dígitos) copiado com sucesso!';
+                } else if (index === 2) {
+                    mensagem = 'BP (9 dígitos) copiado com sucesso!';
+                } else if (index === 3) {
+                    mensagem = 'CNL (5 dígitos) copiado com sucesso!';
+                }
+                
+                // Exibe o alerta
+                alert(mensagem);
+                
+                setTimeout(() => {
+                    btn.innerHTML = originalText;
+                }, 2000);
+            }).catch(err => {
+                console.error('Erro ao copiar:', err);
+                alert('Erro ao copiar os dados. Por favor, tente novamente.');
             });
         }
     </script>
-</head>
-<body>
-    <h1>Data Processor TAP - Portabilidade</h1>
-    <textarea id="dataInput"></textarea><br>
-    <button onclick="processData()">Processar</button>
-    <div id="output"></div>
-    <footer>
-        Desenvolvido por Matheus Barbosa - Portabilidade Oi
-    </footer>
 </body>
 </html>
