@@ -251,14 +251,16 @@
                     else if (
                         status === '55' || 
                         statusLower.includes('cpf dif') ||
-                        (statusLower.includes('reprovado') && statusLower.includes('cpf'))
+                        (statusLower.includes('rejeitar') && statusLower.includes('cpf')) ||
+                        (statusLower.includes('rejeitar') && documento && documento.length === 11)
                     ) {
                         reprovar_55.push(`${++reprovar_55Count}\t${tn}\t${bp}\t${tnl}`);
                     }
                     else if (
                         status === '57' || 
                         statusLower.includes('cnpj dif') ||
-                        (statusLower.includes('reprovado') && statusLower.includes('cnpj'))
+                        (statusLower.includes('rejeitar') && statusLower.includes('cnpj')) ||
+                        (statusLower.includes('rejeitar') && documento && documento.length === 14)
                     ) {
                         reprovar_57.push(`${++reprovar_57Count}\t${tn}\t${bp}\t${tnl}`);
                     }
