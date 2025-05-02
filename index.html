@@ -282,7 +282,8 @@
                         else if (
                             status === '53' || 
                             statusLower.includes('terminal vago') ||
-                            statusLower.includes('rejeitar,terminal')
+                            statusLower.includes('rejeitar,terminal') ||
+                            statusLower.includes('rejeitar,terminal vago')
                         ) {
                             reprovar_53.push(`${++reprovar_53Count}\t${tn}\t${bp}\t${tnl}`);
                         }
