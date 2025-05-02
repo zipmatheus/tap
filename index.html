@@ -223,6 +223,7 @@
                     let tnl = '';
                     let status = '';
                     let documento = '';
+                    let documentoCorreto = '';
 
                     // Formato padrão (9 campos)
                     if (parts.length >= 9) {
@@ -236,47 +237,62 @@
                         status = parts[parts.length - 1];
                     }
 
-                    // Normalizar o status para classificação
-                    const statusLower = status.toLowerCase().trim();
-                    
-                    // Classificar baseado em todas as variações possíveis
-                    if (
-                        status === '59' || 
-                        statusLower.includes('autorizado') ||
-                        statusLower.includes('aprovado') ||
-                        statusLower.includes('eot alfa')
-                    ) {
-                        aprovar.push(`${++aprovarCount}\t${tn}\t${bp}\t${tnl}`);
-                    } 
-                    else if (
-                        status === '55' || 
-                        statusLower.includes('cpf dif') ||
-                        (statusLower.includes('rejeitar') && statusLower.includes('cpf')) ||
-                        (statusLower.includes('rejeitar') && documento && documento.length === 11)
-                    ) {
-                        reprovar_55.push(`${++reprovar_55Count}\t${tn}\t${bp}\t${tnl}`);
-                    }
-                    else if (
-                        status === '57' || 
-                        statusLower.includes('cnpj dif') ||
-                        (statusLower.includes('rejeitar') && statusLower.includes('cnpj')) ||
-                        (statusLower.includes('rejeitar') && documento && documento.length === 14)
-                    ) {
-                        reprovar_57.push(`${++reprovar_57Count}\t${tn}\t${bp}\t${tnl}`);
-                    }
-                    else if (
-                        status === '53' || 
-                        statusLower.includes('terminal vago') ||
-                        statusLower.includes('rejeitar,terminal')
-                    ) {
-                        reprovar_53.push(`${++reprovar_53Count}\t${tn}\t${bp}\t${tnl}`);
-                    }
-                    // Se tiver documento, usar como fallback para classificação
-                    else if (documento) {
-                        if (documento.length === 11) {
+                    // Verificar se é um caso de CPF/CNPJ inválido
+                    if (status.includes('REPROVADO CPF/CNPJ DIF')) {
+                        // Extrair o documento correto após o hífen
+                        const match = status.match(/REPROVADO CPF\/CNPJ DIF - (\d+)/);
+                        if (match && match[1]) {
+                            documentoCorreto = match[1];
+                            // Classificar baseado no tamanho do documento correto
+                            if (documentoCorreto.length === 11) {
+                                reprovar_55.push(`${++reprovar_55Count}\t${tn}\t${bp}\t${tnl}`);
+                            } else if (documentoCorreto.length === 14) {
+                                reprovar_57.push(`${++reprovar_57Count}\t${tn}\t${bp}\t${tnl}`);
+                            }
+                        }
+                    } else {
+                        // Normalizar o status para classificação
+                        const statusLower = status.toLowerCase().trim();
+                        
+                        // Classificar baseado em todas as variações possíveis
+                        if (
+                            status === '59' || 
+                            statusLower.includes('autorizado') ||
+                            statusLower.includes('aprovado') ||
+                            statusLower.includes('eot alfa')
+                        ) {
+                            aprovar.push(`${++aprovarCount}\t${tn}\t${bp}\t${tnl}`);
+                        } 
+                        else if (
+                            status === '55' || 
+                            statusLower.includes('cpf dif') ||
+                            (statusLower.includes('rejeitar') && statusLower.includes('cpf')) ||
+                            (statusLower.includes('rejeitar') && documento && documento.length === 11)
+                        ) {
                             reprovar_55.push(`${++reprovar_55Count}\t${tn}\t${bp}\t${tnl}`);
-                        } else if (documento.length === 14) {
+                        }
+                        else if (
+                            status === '57' || 
+                            statusLower.includes('cnpj dif') ||
+                            (statusLower.includes('rejeitar') && statusLower.includes('cnpj')) ||
+                            (statusLower.includes('rejeitar') && documento && documento.length === 14)
+                        ) {
                             reprovar_57.push(`${++reprovar_57Count}\t${tn}\t${bp}\t${tnl}`);
+                        }
+                        else if (
+                            status === '53' || 
+                            statusLower.includes('terminal vago') ||
+                            statusLower.includes('rejeitar,terminal')
+                        ) {
+                            reprovar_53.push(`${++reprovar_53Count}\t${tn}\t${bp}\t${tnl}`);
+                        }
+                        // Se tiver documento, usar como fallback para classificação
+                        else if (documento) {
+                            if (documento.length === 11) {
+                                reprovar_55.push(`${++reprovar_55Count}\t${tn}\t${bp}\t${tnl}`);
+                            } else if (documento.length === 14) {
+                                reprovar_57.push(`${++reprovar_57Count}\t${tn}\t${bp}\t${tnl}`);
+                            }
                         }
                     }
                 });
