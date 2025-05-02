@@ -283,7 +283,9 @@
                             status === '53' || 
                             statusLower.includes('terminal vago') ||
                             statusLower.includes('rejeitar,terminal') ||
-                            statusLower.includes('rejeitar,terminal vago')
+                            statusLower.includes('rejeitar,terminal vago') ||
+                            statusLower.includes('reprovado terminal nao cadastrado') ||
+                            statusLower.includes('reprovado terminal não cadastrado')
                         ) {
                             reprovar_53.push(`${++reprovar_53Count}\t${tn}\t${bp}\t${tnl}`);
                         }
