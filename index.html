@@ -225,24 +225,36 @@
                     let documento = '';
                     let documentoCorreto = '';
 
-                    // Formato padrão (9 campos)
-                    if (parts.length >= 9) {
+                    // Formato padrão (9 campos ou mais)
+                    if (parts.length >= 6) {
                         tnl = parts[3];
-                        status = parts[8];
-                    } 
-                    // Formato SAC com 6-7 campos
-                    else if (parts.length >= 6) {
-                        tnl = parts[3];
-                        documento = parts[4];
-                        status = parts[parts.length - 1];
+                        if (parts.length > 6) documento = parts[4];
+                        status = parts[parts.length - 1].trim(); // Sempre pega o último campo
                     }
 
-                    // Verificar se é um caso de CPF/CNPJ inválido
-                    if (status.includes('REPROVADO CPF/CNPJ DIF')) {
+                    // Definir statusLower logo após extrair status
+                    let statusLower = status.toLowerCase().trim();
+                    statusLower = statusLower.replace(/\s+/g, ' ');
+
+                    // Primeiro: TERMINAL VAGO
+                    if (
+                        status === '53' || 
+                        statusLower.includes('terminal vago') ||
+                        statusLower.includes('rejeitar,terminal') ||
+                        statusLower.includes('rejeitar,terminal vago') ||
+                        statusLower.includes('reprovado terminal nao cadastrado') ||
+                        statusLower.includes('reprovado terminal não cadastrado')
+                    ) {
+                        console.log('CAIU NO TERMINAL VAGO', statusLower);
+                        reprovar_53.push(`${++reprovar_53Count}\t${tn}\t${bp}\t${tnl}`);
+                    }
+                    // Depois: CPF/CNPJ DIF
+                    else if (status.includes('REPROVADO CPF/CNPJ DIF') || status.includes('REJEITAR, CPF/CNPJ DIF')) {
                         // Extrair o documento correto após o hífen
-                        const match = status.match(/REPROVADO CPF\/CNPJ DIF - (\d+)/);
+                        const match = status.match(/REPROVADO CPF\/CNPJ DIF - (\d+)/) || 
+                                    status.match(/REJEITAR, CPF\/CNPJ DIF- (\d+)/);
                         if (match && match[1]) {
-                            documentoCorreto = match[1];
+                            documentoCorreto = match[1].trim();
                             // Classificar baseado no tamanho do documento correto
                             if (documentoCorreto.length === 11) {
                                 reprovar_55.push(`${++reprovar_55Count}\t${tn}\t${bp}\t${tnl}`);
@@ -251,9 +263,6 @@
                             }
                         }
                     } else {
-                        // Normalizar o status para classificação
-                        const statusLower = status.toLowerCase().trim();
-                        
                         // Classificar baseado em todas as variações possíveis
                         if (
                             status === '59' || 
@@ -278,16 +287,6 @@
                             (statusLower.includes('rejeitar') && documento && documento.length === 14)
                         ) {
                             reprovar_57.push(`${++reprovar_57Count}\t${tn}\t${bp}\t${tnl}`);
-                        }
-                        else if (
-                            status === '53' || 
-                            statusLower.includes('terminal vago') ||
-                            statusLower.includes('rejeitar,terminal') ||
-                            statusLower.includes('rejeitar,terminal vago') ||
-                            statusLower.includes('reprovado terminal nao cadastrado') ||
-                            statusLower.includes('reprovado terminal não cadastrado')
-                        ) {
-                            reprovar_53.push(`${++reprovar_53Count}\t${tn}\t${bp}\t${tnl}`);
                         }
                         // Se tiver documento, usar como fallback para classificação
                         else if (documento) {
