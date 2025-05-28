@@ -434,26 +434,14 @@
                 const btn = event.target.closest('button');
                 const originalText = btn.innerHTML;
                 btn.innerHTML = '<i class="fas fa-check me-1"></i>Copiado!';
-                
-                // Determina qual tipo de dado foi copiado
-                let mensagem = '';
-                if (index === 1) {
-                    mensagem = 'TN (10 dígitos) copiado com sucesso!';
-                } else if (index === 2) {
-                    mensagem = 'BP (9 dígitos) copiado com sucesso!';
-                } else if (index === 3) {
-                    mensagem = 'CNL (5 dígitos) copiado com sucesso!';
-                }
-                
-                // Exibe o alerta
-                alert(mensagem);
-                
+                // Exibe o alerta de sucesso simples
+                alert('Dados copiados com sucesso!');
                 setTimeout(() => {
                     btn.innerHTML = originalText;
                 }, 2000);
             }).catch(err => {
                 console.error('Erro ao copiar:', err);
-                alert('Erro ao copiar os dados. Por favor, tente novamente.');
+                alert('Erro ao copiar. Tente novamente.');
             });
         }
     </script>
