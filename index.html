@@ -349,13 +349,13 @@
                                 </div>
                                 <div id="${id}_${chunkIndex}_content">
                                     <div class="mb-2 mt-3">
-                                        <button class="btn btn-outline-primary copy-btn" onclick="copyColumn('${id}_${chunkIndex}', 1)">
+                                        <button class="btn btn-outline-primary copy-btn" onclick="copyColumn(this, '${id}_${chunkIndex}', 1)">
                                             <i class="fas fa-copy me-1"></i>CNL (5 dígitos)
                                         </button>
-                                        <button class="btn btn-outline-primary copy-btn" onclick="copyColumn('${id}_${chunkIndex}', 3)">
+                                        <button class="btn btn-outline-primary copy-btn" onclick="copyColumn(this, '${id}_${chunkIndex}', 3)">
                                             <i class="fas fa-copy me-1"></i>TN (10 dígitos)
                                         </button>
-                                        <button class="btn btn-outline-primary copy-btn" onclick="copyColumn('${id}_${chunkIndex}', 2)">
+                                        <button class="btn btn-outline-primary copy-btn" onclick="copyColumn(this, '${id}_${chunkIndex}', 2)">
                                             <i class="fas fa-copy me-1"></i>BP (9 dígitos)
                                         </button>
                                     </div>
@@ -413,7 +413,7 @@
             }
         }
 
-        function copyColumn(group, index) {
+        function copyColumn(button, group, index) {
             console.log(`Copiando coluna ${index} do grupo ${group}`);
             const pre = document.querySelector(`#${group} .data-list`);
             if (!pre) {
@@ -431,13 +431,12 @@
             });
 
             navigator.clipboard.writeText(textToCopy.trim()).then(() => {
-                const btn = event.target.closest('button');
-                const originalText = btn.innerHTML;
-                btn.innerHTML = '<i class="fas fa-check me-1"></i>Copiado!';
+                const originalText = button.innerHTML;
+                button.innerHTML = '<i class="fas fa-check me-1"></i>Copiado!';
                 // Exibe o alerta de sucesso simples
                 alert('Dados copiados com sucesso!');
                 setTimeout(() => {
-                    btn.innerHTML = originalText;
+                    button.innerHTML = originalText;
                 }, 2000);
             }).catch(err => {
                 console.error('Erro ao copiar:', err);
